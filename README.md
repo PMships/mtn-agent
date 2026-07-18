@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +35,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+=======
+# MTN-Agent
+Verified Agent Commerce Demo
+# What this is
+MTN-Agent demonstrates the core trust problem in agentic commerce: when an AI agent attempts to make a purchase on your behalf, how does the payment network know it's authorised? Under what constraints? And how do you audit what it did and why?
+>>>>>>> bd5db04e90c937e6a8aea288162aa56c5f18b97f

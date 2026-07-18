@@ -97,7 +97,23 @@ async function handleToolCall(toolName: string, toolInput: Record<string, unknow
     if (category) results = results.filter(m => m.category === category);
     if (query) {
       const q = query.toLowerCase();
-      results = results.filter(m => m.name.toLowerCase().includes(q) || m.category.toLowerCase().includes(q));
+      results = results.filter(m =>
+        m.name.toLowerCase().includes(q) ||
+        m.category.toLowerCase().includes(q) ||
+        q.includes(m.category.toLowerCase())
+      );
+    }
+    // If still empty and query mentions travel keywords, return all travel merchants
+    if (results.length === 0) {
+      const travelKeywords = [
+        'flight', 'fly', 'airline', 'airport', 'travel',
+        'london', 'paris', 'berlin', 'amsterdam', 'madrid', 'rome', 'barcelona',
+        'new york', 'dubai', 'lisbon', 'edinburgh', 'manchester', 'glasgow',
+        'brussels', 'milan', 'vienna', 'prague', 'copenhagen', 'stockholm'
+      ];
+      if (travelKeywords.some(k => query.toLowerCase().includes(k))) {
+        results = MERCHANTS.filter(m => m.category === 'travel');
+      }
     }
     return JSON.stringify(results);
   }

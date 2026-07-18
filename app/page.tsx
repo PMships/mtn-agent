@@ -58,7 +58,11 @@ export default function AgentConsole() {
 
       <div className="bg-gray-50 rounded-lg p-4 min-h-48 font-mono text-sm space-y-1">
         {log.length === 0 && !loading && <p className="text-gray-400">Agent output will appear here...</p>}
-        {log.map((line, i) => <p key={i}>{line}</p>)}
+        {log.map((line, i) => (
+  <p key={i} className={line.startsWith('📋 Result:') ? 'font-bold' : ''}>
+    {line}
+  </p>
+))}
       </div>
 
       <div className="mt-4 flex gap-4 text-sm text-gray-400">

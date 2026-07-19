@@ -28,7 +28,7 @@ export default function AuditLog() {
   };
 
   return (
-    <main className="max-w-4xl mx-auto p-8">
+    <main className="max-w-5xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-2">Audit Log</h1>
       <p className="text-gray-500 mb-6">Every agent decision, immutably recorded.</p>
 
@@ -40,7 +40,8 @@ export default function AuditLog() {
               <th className="pb-2 pr-4">Merchant</th>
               <th className="pb-2 pr-4">Amount</th>
               <th className="pb-2 pr-4">Decision</th>
-              <th className="pb-2">Reason</th>
+              <th className="pb-2 pr-4">Reason</th>
+              <th className="pb-2">On-Chain</th>
             </tr>
           </thead>
           <tbody>
@@ -56,11 +57,25 @@ export default function AuditLog() {
                     {entry.decision}
                   </span>
                 </td>
-                <td className="py-3 text-gray-500">{entry.reason}</td>
+                <td className="py-3 pr-4 text-gray-500">{entry.reason}</td>
+                <td className="py-3">
+                  {entry.tx_hash ? (
+                    
+                      href={`https://sepolia.etherscan.io/tx/${entry.tx_hash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline font-mono text-xs"
+                    >
+                      {entry.tx_hash.slice(0, 10)}...
+                    </a>
+                  ) : (
+                    <span className="text-gray-300">—</span>
+                  )}
+                </td>
               </tr>
             ))}
             {log.length === 0 && (
-              <tr><td colSpan={5} className="py-8 text-center text-gray-400">No decisions logged yet</td></tr>
+              <tr><td colSpan={6} className="py-8 text-center text-gray-400">No decisions logged yet</td></tr>
             )}
           </tbody>
         </table>

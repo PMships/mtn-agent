@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -43,8 +44,56 @@ async function logAction(entry: {
   reason?: string;
   agent_reasoning?: string;
 }) {
-  await supabase.from("agent_audit_log").insert(entry);
+  let tx_hash: string | null = null;
+
+  if (entry.merchant_id && entry.amount && entry.category) {
+    tx_hash = await logActionOnChain(
+      entry.merchant_id,
+      entry.merchant_name || "",
+      entry.amount,
+      entry.category,
+      entry.decision,
+      entry.reason || ""
+    );
+  }
+
+  await supabase.from("agent_audit_log").insert({ ...entry, tx_hash });
 }
+
+
+async function logActionOnChain(
+  merchantId: string,
+  merchantName: string,
+  amount: number,
+  category: string,
+  decision: string,
+  reason: string
+): Promise<string | null> {
+  try {
+    const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
+    const wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
+    
+    const abi = [
+      "function logAction(string merchantId, string merchantName, uint256 amount, string category, string decision, string reason) external"
+    ];
+    
+    const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS!, abi, wallet);
+    const tx = await contract.logAction(
+      merchantId,
+      merchantName,
+      BigInt(Math.round(amount * 100)), // convert to cents
+      category,
+      decision,
+      reason
+    );
+    await tx.wait();
+    return tx.hash;
+  } catch (err) {
+    console.error("On-chain logging failed:", err);
+    return null;
+  }
+}
+
 
 // ── Tool definitions ───────────────────────────────────────────────────────
 server.setRequestHandler(ListToolsRequestSchema, async () => ({

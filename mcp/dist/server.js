@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ethers_1 = require("ethers");
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
@@ -28,7 +29,29 @@ async function getTodaySpend() {
 }
 // ── Helper: log action ─────────────────────────────────────────────────────
 async function logAction(entry) {
-    await supabase.from("agent_audit_log").insert(entry);
+    let tx_hash = null;
+    if (entry.merchant_id && entry.amount && entry.category) {
+        tx_hash = await logActionOnChain(entry.merchant_id, entry.merchant_name || "", entry.amount, entry.category, entry.decision, entry.reason || "");
+    }
+    await supabase.from("agent_audit_log").insert({ ...entry, tx_hash });
+}
+async function logActionOnChain(merchantId, merchantName, amount, category, decision, reason) {
+    try {
+        const provider = new ethers_1.ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        const wallet = new ethers_1.ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, provider);
+        const abi = [
+            "function logAction(string merchantId, string merchantName, uint256 amount, string category, string decision, string reason) external"
+        ];
+        const contract = new ethers_1.ethers.Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
+        const tx = await contract.logAction(merchantId, merchantName, BigInt(Math.round(amount * 100)), // convert to cents
+        category, decision, reason);
+        await tx.wait();
+        return tx.hash;
+    }
+    catch (err) {
+        console.error("On-chain logging failed:", err);
+        return null;
+    }
 }
 // ── Tool definitions ───────────────────────────────────────────────────────
 server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => ({

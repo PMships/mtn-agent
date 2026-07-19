@@ -60,14 +60,14 @@ export default function AuditLog() {
                 <td className="py-3 pr-4 text-gray-500">{entry.reason}</td>
                 <td className="py-3">
                   {entry.tx_hash ? (
-                    
-                      href={`https://sepolia.etherscan.io/tx/${entry.tx_hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline font-mono text-xs"
-                    >
-                      {entry.tx_hash.slice(0, 10)}...
-                    </a>
+                    <a>
+                    href={"https://sepolia.etherscan.io/tx/" + entry.tx_hash}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline font-mono text-xs"
+                  
+                    {entry.tx_hash.slice(0, 10)}...
+                  </a>
                   ) : (
                     <span className="text-gray-300">—</span>
                   )}

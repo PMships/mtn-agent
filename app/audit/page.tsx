@@ -21,53 +21,56 @@ export default function AuditLog() {
     fetch('/api/audit').then(r => r.json()).then(setLog);
   }, []);
 
-  const decisionColor = (d: string) => {
-    if (d === 'APPROVED') return 'bg-green-100 text-green-800';
-    if (d === 'REJECTED') return 'bg-red-100 text-red-800';
-    return 'bg-amber-100 text-amber-800';
+  const decisionStyle = (d: string) => {
+    if (d === 'APPROVED') return { backgroundColor: '#dcfce7', color: '#166534' };
+    if (d === 'REJECTED') return { backgroundColor: '#fee2e2', color: '#991b1b' };
+    return { backgroundColor: '#fef9c3', color: '#854d0e' };
   };
 
   return (
-    <main className="max-w-5xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">Audit Log</h1>
-      <p className="text-gray-500 mb-6">Every agent decision, immutably recorded.</p>
+    <main className="max-w-5xl mx-auto px-8 py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-1" style={{ color: '#1A1F71' }}>Audit Log</h1>
+        <p className="text-gray-500">Every agent decision, permanently recorded.</p>
+      </div>
 
-      <div className="overflow-x-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-gray-500">
-              <th className="pb-2 pr-4">Time</th>
-              <th className="pb-2 pr-4">Merchant</th>
-              <th className="pb-2 pr-4">Amount</th>
-              <th className="pb-2 pr-4">Decision</th>
-              <th className="pb-2 pr-4">Reason</th>
-              <th className="pb-2">On-Chain</th>
+            <tr style={{ backgroundColor: '#1A1F71' }}>
+              <th className="text-left text-white font-medium px-6 py-3">Time</th>
+              <th className="text-left text-white font-medium px-6 py-3">Merchant</th>
+              <th className="text-left text-white font-medium px-6 py-3">Amount</th>
+              <th className="text-left text-white font-medium px-6 py-3">Decision</th>
+              <th className="text-left text-white font-medium px-6 py-3">Reason</th>
+              <th className="text-left text-white font-medium px-6 py-3">On-Chain</th>
             </tr>
           </thead>
           <tbody>
-            {log.map(entry => (
-              <tr key={entry.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 pr-4 text-gray-400 whitespace-nowrap">
+            {log.map((entry, i) => (
+              <tr key={entry.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                <td className="px-6 py-4 text-gray-400 whitespace-nowrap">
                   {new Date(entry.created_at).toLocaleTimeString()}
                 </td>
-                <td className="py-3 pr-4 font-medium">{entry.merchant_name || '—'}</td>
-                <td className="py-3 pr-4">{entry.amount ? `€${entry.amount}` : '—'}</td>
-                <td className="py-3 pr-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${decisionColor(entry.decision)}`}>
+                <td className="px-6 py-4 font-medium text-gray-800">{entry.merchant_name || '—'}</td>
+                <td className="px-6 py-4 text-gray-800">{entry.amount ? `€${entry.amount}` : '—'}</td>
+                <td className="px-6 py-4">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={decisionStyle(entry.decision)}>
                     {entry.decision}
                   </span>
                 </td>
-                <td className="py-3 pr-4 text-gray-500">{entry.reason}</td>
-                <td className="py-3">
+                <td className="px-6 py-4 text-gray-500 max-w-xs truncate">{entry.reason}</td>
+                <td className="px-6 py-4">
                   {entry.tx_hash ? (
                     <a>
-                    href={"https://sepolia.etherscan.io/tx/" + entry.tx_hash}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline font-mono text-xs"
-                  
-                    {entry.tx_hash.slice(0, 10)}...
-                  </a>
+                      href={"https://sepolia.etherscan.io/tx/" + entry.tx_hash}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-xs hover:underline"
+                      style={{ color: '#EB001B' }}
+                    >
+                      {entry.tx_hash.slice(0, 10)}...
+                    </a>
                   ) : (
                     <span className="text-gray-300">—</span>
                   )}
@@ -75,15 +78,14 @@ export default function AuditLog() {
               </tr>
             ))}
             {log.length === 0 && (
-              <tr><td colSpan={6} className="py-8 text-center text-gray-400">No decisions logged yet</td></tr>
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                  No decisions logged yet
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
-      </div>
-
-      <div className="mt-6 flex gap-4 text-sm text-gray-400">
-        <a href="/" className="hover:text-black">← Agent Console</a>
-        <a href="/policy" className="hover:text-black">Policy Dashboard →</a>
       </div>
     </main>
   );

@@ -118,16 +118,23 @@ async function logActionOnChain(
   }
 }
 
-async function logAction(entry: object & { merchant_id?: string; merchant_name?: string; amount?: number; category?: string; decision: string; reason?: string }) {
+async function logAction(entry: Record<string, unknown>) {
   let tx_hash: string | null = null;
-  if (entry.merchant_id && entry.amount && entry.category) {
+  const merchantId = entry.merchant_id as string | undefined;
+  const merchantName = entry.merchant_name as string | undefined;
+  const amount = entry.amount as number | undefined;
+  const category = entry.category as string | undefined;
+  const decision = entry.decision as string;
+  const reason = entry.reason as string | undefined;
+
+  if (merchantId && amount && category) {
     tx_hash = await logActionOnChain(
-      entry.merchant_id,
-      entry.merchant_name || "",
-      entry.amount,
-      entry.category,
-      entry.decision,
-      entry.reason || ""
+      merchantId,
+      merchantName || "",
+      amount,
+      category,
+      decision,
+      reason || ""
     );
   }
   await supabase.from('agent_audit_log').insert({ ...entry, tx_hash });

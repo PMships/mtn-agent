@@ -53,9 +53,9 @@ export default function AuditLog() {
                   {new Date(entry.created_at).toLocaleTimeString()}
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-800">{entry.merchant_name || '—'}</td>
-                <td className="px-6 py-4 text-gray-800">{entry.amount ? `€${entry.amount}` : '—'}</td>
+                <td className="px-6 py-4 text-gray-800">{entry.amount ? '€' + entry.amount : '—'}</td>
                 <td className="px-6 py-4">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={decisionStyle(entry.decision)}>
+                  <span className="px-2 py-1 rounded-full text-xs font-semibold" style={decisionStyle(entry.decision)}>
                     {entry.decision}
                   </span>
                 </td>
@@ -67,14 +67,15 @@ export default function AuditLog() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-xs hover:underline"
-                      style={{ color: '#EB001B' }}
-                    >
+                      
+                    
                       {entry.tx_hash.slice(0, 10)}...
                     </a>
                   ) : (
                     <span className="text-gray-300">—</span>
                   )}
                 </td>
+              
               </tr>
             ))}
             {log.length === 0 && (

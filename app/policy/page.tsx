@@ -49,3 +49,72 @@ export default function PolicyDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-semibold text-gray-800">Agent Status</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Master kill switch — disable to block all agent transactions</p>
+          </div>
+          <button
+            onClick={() => setPolicy({ ...policy, active: !policy.active })}
+            className="px-5 py-2 rounded-full text-sm font-medium text-white transition-colors"
+            style={{ backgroundColor: policy.active ? '#EB001B' : '#6b7280' }}
+          >
+            {policy.active ? 'Agent ON' : 'Agent OFF'}
+          </button>
+        </div>
+      </div>
+
+      {/* Spending limits */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
+        <h2 className="font-semibold text-gray-800 mb-4">Spending Limits</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Daily Limit (€)', key: 'daily_limit' },
+            { label: 'Per Transaction (€)', key: 'single_transaction_limit' },
+            { label: 'Approval Above (€)', key: 'require_approval_above' },
+          ].map(({ label, key }) => (
+            <div key={key}>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+              <input
+                type="number"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                value={policy[key]}
+                onChange={e => setPolicy({ ...policy, [key]: Number(e.target.value) })}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Allowed categories */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h2 className="font-semibold text-gray-800 mb-4">Allowed Categories</h2>
+        <div className="flex gap-3 flex-wrap">
+          {CATEGORIES.map(cat => {
+            const active = policy.allowed_categories.includes(cat);
+            return (
+              <button
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                className="px-4 py-2 rounded-full text-sm font-medium border transition-colors capitalize"
+                style={{
+                  backgroundColor: active ? '#1A1F71' : 'white',
+                  color: active ? 'white' : '#6b7280',
+                  borderColor: active ? '#1A1F71' : '#e5e7eb',
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        onClick={save}
+        disabled={saving}
+        className="px-6 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-opacity hover:opacity-90"
+        style={{ backgroundColor: '#1A1F71' }}
+      >
+        {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Policy'}
+      </button>
+    </main>
+  );
+}

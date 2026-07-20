@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
+import { ethers } from 'ethers';
 
 const client = new Anthropic();
 
@@ -86,8 +87,50 @@ async function getTodaySpend() {
   return (data || []).reduce((sum, r) => sum + (r.amount || 0), 0);
 }
 
-async function logAction(entry: object) {
-  await supabase.from('agent_audit_log').insert(entry);
+async function logActionOnChain(
+  merchantId: string,
+  merchantName: string,
+  amount: number,
+  category: string,
+  decision: string,
+  reason: string
+): Promise<string | null> {
+  try {
+    const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
+    const wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
+    const abi = [
+      "function logAction(string merchantId, string merchantName, uint256 amount, string category, string decision, string reason) external"
+    ];
+    const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS!, abi, wallet);
+    const tx = await contract.logAction(
+      merchantId,
+      merchantName,
+      BigInt(Math.round(amount * 100)),
+      category,
+      decision,
+      reason
+    );
+    await tx.wait();
+    return tx.hash;
+  } catch (err) {
+    console.error("On-chain logging failed:", err);
+    return null;
+  }
+}
+
+async function logAction(entry: object & { merchant_id?: string; merchant_name?: string; amount?: number; category?: string; decision: string; reason?: string }) {
+  let tx_hash: string | null = null;
+  if (entry.merchant_id && entry.amount && entry.category) {
+    tx_hash = await logActionOnChain(
+      entry.merchant_id,
+      entry.merchant_name || "",
+      entry.amount,
+      entry.category,
+      entry.decision,
+      entry.reason || ""
+    );
+  }
+  await supabase.from('agent_audit_log').insert({ ...entry, tx_hash });
 }
 
 async function handleToolCall(toolName: string, toolInput: Record<string, unknown>) {

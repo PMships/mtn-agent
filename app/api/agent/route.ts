@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 import { ethers } from 'ethers';
 
+export const maxDuration = 60;
+
 const client = new Anthropic();
 
 const tools: Anthropic.Tool[] = [

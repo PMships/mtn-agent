@@ -166,6 +166,11 @@ async function handleToolCall(toolName: string, toolInput: Record<string, unknow
       if (travelKeywords.some(k => query.toLowerCase().includes(k))) {
         results = MERCHANTS.filter(m => m.category === 'travel');
       }
+      // Add this block right after:
+      const hotelKeywords = ['hotel', 'accommodation', 'stay', 'nights', 'airbnb', 'room', 'dublin', 'book'];
+      if (results.length === 0 && hotelKeywords.some(k => query.toLowerCase().includes(k))) {
+    results = MERCHANTS.filter(m => m.category === 'accommodation');
+}
     }
     return JSON.stringify(results);
   }

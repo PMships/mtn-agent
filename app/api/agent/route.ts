@@ -110,7 +110,7 @@ async function logActionOnChain(
       decision,
       reason
     );
-    await tx.wait();
+    // Don't await confirmation — fire and forget to avoid Vercel timeout
     return tx.hash;
   } catch (err) {
     console.error("On-chain logging failed:", err);

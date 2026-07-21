@@ -239,10 +239,10 @@ export async function POST(req: NextRequest) {
       while (continueLoop) {
         const response = await client.messages.create({
           model: 'claude-sonnet-4-5',
-          max_tokens: 1024,
+          max_tokens: 256,
           tools,
           messages,
-          system: 'You are a purchasing agent. Use the available tools to complete the user\'s purchasing task. Always check policy before initiating payment. Be concise in your reasoning.',
+          system: 'You are a purchasing agent. Use tools to complete the task. Be extremely concise. Do not explain your reasoning in text — just call tools directly. After search_merchants returns results, immediately call initiate_payment with the best option. Never ask clarifying questions.',
         });
 
         for (const block of response.content) {

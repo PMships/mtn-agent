@@ -62,12 +62,12 @@ export default function AuditLog() {
                 <td className="px-6 py-4 text-gray-500 max-w-xs truncate">{entry.reason}</td>
                 <td className="px-6 py-4">
                   {entry.tx_hash ? (
-                    <a>
+                    <a
                       href={"https://sepolia.etherscan.io/tx/" + entry.tx_hash}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-xs hover:underline"
-                      
+                      >
                     
                       {entry.tx_hash.slice(0, 10)}...
                     </a>
